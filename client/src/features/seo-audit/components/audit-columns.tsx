@@ -1,21 +1,11 @@
 import { useState } from 'react'
 import { type ColumnDef, type Row } from '@tanstack/react-table'
-import { ExternalLink, ChevronDown, ChevronRight, CheckCircle2, XCircle, AlertCircle, Copy, Check, Pin, PinOff } from 'lucide-react'
+import { ExternalLink, ChevronDown, ChevronRight, CircleCheck as CheckCircle2, Circle as XCircle, CircleAlert as AlertCircle, Copy, Check, Pin, PinOff } from 'lucide-react'
 import { Badge } from '@/components/ui/badge'
 import { Button } from '@/components/ui/button'
 import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover'
 import { DataTableColumnHeader } from '@/components/data-table'
 import { type PageResult, type ResourceError, getScoreColor, getStatusColor, formatBytes, formatDuration } from '@/types/seo'
-
-// Helper component for boolean display
-function BooleanIndicator({ value, showBad = false }: { value: boolean; showBad?: boolean }) {
-  const isGood = showBad ? !value : value
-  return isGood ? (
-    <CheckCircle2 className='h-4 w-4 text-green-500 shrink-0' />
-  ) : (
-    <XCircle className='h-4 w-4 text-red-500 shrink-0' />
-  )
-}
 
 // Helper component for stat rows
 function StatRow({ label, value, warn, good }: { label: string; value: React.ReactNode; warn?: boolean; good?: boolean }) {

@@ -1,7 +1,7 @@
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query'
 import { useEffect, useState, useCallback } from 'react'
 import { auditApi } from '@/lib/api'
-import type { Audit, AuditWithResults, ProgressEvent } from '@/types/seo'
+import type { ProgressEvent } from '@/types/seo'
 
 // Query keys
 export const auditKeys = {

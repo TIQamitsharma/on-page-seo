@@ -1,15 +1,13 @@
 import { createFileRoute, Link } from '@tanstack/react-router'
 import { useQuery } from '@tanstack/react-query'
-import { Plus, Eye, Loader2, FileText } from 'lucide-react'
+import { Plus, Eye, Loader as Loader2, FileText } from 'lucide-react'
 import { Header } from '@/components/layout/header'
 import { Main } from '@/components/layout/main'
 import { Button } from '@/components/ui/button'
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
-import { Badge } from '@/components/ui/badge'
 import { auditApi } from '@/lib/api'
 import { auditKeys } from '@/features/seo-audit'
-import { getScoreColor } from '@/types/seo'
-import type { Audit, AuditWithResults } from '@/types/seo'
+import type { Audit } from '@/types/seo'
 
 export const Route = createFileRoute('/_authenticated/reports')({
   component: ReportsPage,

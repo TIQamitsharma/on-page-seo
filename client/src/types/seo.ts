@@ -32,7 +32,7 @@ export const auditFormSchema = z.object({
       },
       { message: 'Please enter a valid URL' }
     ),
-  limit: z.number().min(1).max(500).default(100),
+  limit: z.number().min(1).max(500),
 })
 
 export type AuditFormValues = z.infer<typeof auditFormSchema>

@@ -1,24 +1,9 @@
-import {
-  ExternalLink,
-  CheckCircle2,
-  XCircle,
-  AlertCircle,
-  Clock,
-  FileText,
-  Link2,
-  Image,
-  Code2,
-  Globe,
-  Share2,
-} from 'lucide-react'
+import { ExternalLink, CircleCheck as CheckCircle2, Circle as XCircle, CircleAlert as AlertCircle, Clock, FileText, Link2, Image, Code as Code2, Globe, Share2 } from 'lucide-react'
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
 import { Badge } from '@/components/ui/badge'
-import { Progress } from '@/components/ui/progress'
 import { Separator } from '@/components/ui/separator'
 import {
   type PageResult,
-  getScoreColor,
-  getStatusColor,
   getCWVStatusColor,
   formatBytes,
   formatDuration,

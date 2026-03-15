@@ -1,16 +1,7 @@
 import { useState, useEffect, useCallback } from 'react'
 import { useForm } from 'react-hook-form'
 import { zodResolver } from '@hookform/resolvers/zod'
-import {
-  Search,
-  Loader2,
-  CheckCircle2,
-  Square,
-  CheckSquare,
-  StopCircle,
-  Play,
-  Download,
-} from 'lucide-react'
+import { Search, CircleCheck as CheckCircle2, Square, SquareCheck as CheckSquare, CircleStop as StopCircle, Play, Download } from 'lucide-react'
 import { Logo } from '@/components/logo'
 import { toast } from 'sonner'
 import { Button } from '@/components/ui/button'
@@ -35,7 +26,6 @@ import {
 import { Progress } from '@/components/ui/progress'
 import { ScrollArea } from '@/components/ui/scroll-area'
 import { Checkbox } from '@/components/ui/checkbox'
-import { Badge } from '@/components/ui/badge'
 import { auditFormSchema, type AuditFormValues, type ProgressEvent } from '@/types/seo'
 import { auditApi } from '@/lib/api'
 import { InteractiveAvatar } from '@/components/ui/interactive-avatar'

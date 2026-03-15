@@ -167,7 +167,7 @@ router.post('/discover', authMiddleware, async (req: Request, res: Response): Pr
 
 router.post('/', authMiddleware, async (req: Request, res: Response): Promise<void> => {
   try {
-    const { url, limit = 100, pages } = req.body as CreateAuditRequest;
+    const { url, limit = 100, pages } = req.body as CreateAuditRequest & { pages?: string[] };
     const userId = req.userId!;
 
     if (!url) {
