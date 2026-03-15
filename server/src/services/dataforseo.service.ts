@@ -1,5 +1,5 @@
 import type { DataForSEOResponse, DataForSEOPageItem } from '../types/index.js';
-import { getSetting } from '../db/database.js';
+import { getUserApiKey } from '../db/supabase.js';
 
 const DATAFORSEO_API_URL = 'https://api.dataforseo.com/v3/on_page/instant_pages';
 
@@ -20,14 +20,13 @@ async function rateLimitDelay(): Promise<void> {
   lastRequestTime = Date.now();
 }
 
-export async function analyzePage(url: string): Promise<{
+export async function analyzePage(url: string, userId: string): Promise<{
   data: DataForSEOPageItem;
   cost: number;
   time: string;
 }> {
-  // First check database, then fall back to environment variables
-  const username = getSetting('dataforseo_username') || process.env.DATAFORSEO_USERNAME;
-  const password = getSetting('dataforseo_password') || process.env.DATAFORSEO_PASSWORD;
+  const username = await getUserApiKey(userId, 'dataforseo_username');
+  const password = await getUserApiKey(userId, 'dataforseo_password');
 
   if (!username || !password) {
     throw new Error('DataForSEO credentials are not configured. Please add them in Settings.');
@@ -94,6 +93,7 @@ export async function analyzePage(url: string): Promise<{
 // Retry wrapper with exponential backoff
 export async function analyzePageWithRetry(
   url: string,
+  userId: string,
   maxRetries: number = 3
 ): Promise<{
   data: DataForSEOPageItem;
@@ -104,7 +104,7 @@ export async function analyzePageWithRetry(
 
   for (let attempt = 0; attempt < maxRetries; attempt++) {
     try {
-      return await analyzePage(url);
+      return await analyzePage(url, userId);
     } catch (error) {
       lastError = error instanceof Error ? error : new Error(String(error));
       console.log(`Retry ${attempt + 1}/${maxRetries} for ${url}`);

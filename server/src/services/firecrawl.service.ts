@@ -1,14 +1,14 @@
 import type { FirecrawlMapResponse, FirecrawlLink } from '../types/index.js';
-import { getSetting } from '../db/database.js';
+import { getUserApiKey } from '../db/supabase.js';
 
 const FIRECRAWL_API_URL = 'https://api.firecrawl.dev/v2/map';
 
 export async function discoverPages(
   url: string,
+  userId: string,
   limit: number = 100
 ): Promise<string[]> {
-  // First check database, then fall back to environment variable
-  const apiKey = getSetting('firecrawl_api_key') || process.env.FIRECRAWL_API_KEY;
+  const apiKey = await getUserApiKey(userId, 'firecrawl_api_key');
 
   if (!apiKey) {
     throw new Error('Firecrawl API key is not configured. Please add it in Settings.');

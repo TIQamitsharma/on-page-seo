@@ -1,5 +1,6 @@
 import axios from 'axios'
 import type { Audit, AuditWithResults, PageResult, ProgressEvent } from '@/types/seo'
+import { supabase } from './supabase'
 
 // Create axios instance
 const api = axios.create({
@@ -7,6 +8,17 @@ const api = axios.create({
   headers: {
     'Content-Type': 'application/json',
   },
+})
+
+// Add auth token to requests
+api.interceptors.request.use(async (config) => {
+  const { data: { session } } = await supabase.auth.getSession()
+
+  if (session?.access_token) {
+    config.headers.Authorization = `Bearer ${session.access_token}`
+  }
+
+  return config
 })
 
 // Discover pages response
