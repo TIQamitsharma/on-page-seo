@@ -1,7 +1,12 @@
 import { createClient } from '@supabase/supabase-js';
 import { config } from 'dotenv';
+import { resolve, dirname } from 'path';
+import { fileURLToPath } from 'url';
 
-config();
+const __dirname = dirname(fileURLToPath(import.meta.url));
+// Load .env from server/ first, then fall back to project root
+config({ path: resolve(__dirname, '../../.env') });
+config({ path: resolve(__dirname, '../../../.env') });
 
 const supabaseUrl = process.env.VITE_SUPABASE_URL;
 const supabaseServiceKey = process.env.SUPABASE_SERVICE_ROLE_KEY;

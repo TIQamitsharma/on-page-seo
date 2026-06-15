@@ -3,7 +3,6 @@ import cors from 'cors';
 import { config } from 'dotenv';
 import path from 'path';
 import { fileURLToPath } from 'url';
-import fs from 'fs';
 
 import auditRoutes from './routes/audit.routes.js';
 import settingsRoutes from './routes/settings.routes.js';
@@ -17,8 +16,12 @@ const __dirname = path.dirname(__filename);
 
 // Create Express app
 const app = express();
-const PORT = process.env.PORT || 3001;
 const isProduction = process.env.NODE_ENV === 'production';
+// In production, bind to the port Bolt's proxy forwards to (PORT env).
+// In development, use API_PORT (default 3001) so Vite can run on PORT (5173).
+const PORT = isProduction
+  ? (process.env.PORT || 3001)
+  : (process.env.API_PORT || 3001);
 
 // Middleware
 app.use(cors({

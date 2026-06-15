@@ -22,12 +22,18 @@ export default defineConfig({
   },
   server: {
     host: true,
-    port: 3005,
+    port: 5173,
+    strictPort: true,
     proxy: {
       '/api': {
         target: 'http://localhost:3001',
         changeOrigin: true,
       },
     },
+  },
+  preview: {
+    host: true,
+    port: Number(process.env.PORT) || 4173,
+    strictPort: true,
   },
 })

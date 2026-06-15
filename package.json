@@ -7,11 +7,11 @@
   "scripts": {
     "dev": "concurrently \"npm run dev:server\" \"npm run dev:client\"",
     "dev:client": "cd client && npm run dev",
-    "dev:server": "cd server && npm run dev",
+    "dev:server": "cd server && API_PORT=3001 npm run dev",
     "build": "npm run build:client && npm run build:server",
     "build:client": "cd client && npm run build",
     "build:server": "cd server && npm run build",
-    "start": "cd server && npm run start",
+    "start": "npm run build && cd server && NODE_ENV=production PORT=5173 node dist/index.js",
     "lint": "cd client && npm run lint",
     "format": "cd client && npm run format",
     "install:all": "npm install && cd client && npm install && cd ../server && npm install"
