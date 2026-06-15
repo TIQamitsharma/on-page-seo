@@ -43,10 +43,15 @@ router.get('/status', authMiddleware, async (req: Request, res: Response): Promi
     const firecrawlKey = await getUserApiKey(userId, 'firecrawl_api_key');
     const dataforseoUsername = await getUserApiKey(userId, 'dataforseo_username');
     const dataforseoPassword = await getUserApiKey(userId, 'dataforseo_password');
+    const claudeKey = await getUserApiKey(userId, 'claude_api_key');
+    const openrouterKey = await getUserApiKey(userId, 'openrouter_api_key');
 
     const status = {
       firecrawl_configured: !!firecrawlKey,
       dataforseo_configured: !!(dataforseoUsername && dataforseoPassword),
+      claude_configured: !!claudeKey,
+      openrouter_configured: !!openrouterKey,
+      ai_configured: !!(claudeKey || openrouterKey),
       all_configured: !!(firecrawlKey && dataforseoUsername && dataforseoPassword),
     };
 

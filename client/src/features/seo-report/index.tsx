@@ -1,19 +1,23 @@
-import { ExternalLink, CircleCheck as CheckCircle2, Circle as XCircle, CircleAlert as AlertCircle, Clock, FileText, Link2, Image, Code as Code2, Globe, Share2 } from 'lucide-react'
+import { useState } from 'react'
+import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query'
+import { ExternalLink, CircleCheck as CheckCircle2, Circle as XCircle, CircleAlert as AlertCircle, Clock, FileText, Link2, Image, Code as Code2, Globe, Share2, Bot, Loader as Loader2, ChevronDown, ChevronUp, Zap, TriangleAlert as AlertTriangle } from 'lucide-react'
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
 import { Badge } from '@/components/ui/badge'
 import { Separator } from '@/components/ui/separator'
+import { Button } from '@/components/ui/button'
+import { toast } from 'sonner'
 import {
   type PageResult,
   getCWVStatusColor,
   formatBytes,
   formatDuration,
 } from '@/types/seo'
+import { recommendationsApi } from '@/lib/api'
 
 interface SeoReportProps {
   report: PageResult
 }
 
-// Score Overview Card
 function ScoreCard({ title, value, subtitle, color }: { title: string; value: string | number; subtitle?: string; color?: string }) {
   return (
     <Card>
@@ -28,7 +32,6 @@ function ScoreCard({ title, value, subtitle, color }: { title: string; value: st
   )
 }
 
-// Check Item Component
 function CheckItem({ label, passed, value }: { label: string; passed: boolean; value?: string }) {
   return (
     <div className='flex items-center justify-between py-2'>
@@ -45,7 +48,6 @@ function CheckItem({ label, passed, value }: { label: string; passed: boolean; v
   )
 }
 
-// CWV Metric Card
 function CWVCard({ title, value, status, threshold, unit }: { title: string; value: number; status: string; threshold: string; unit: string }) {
   const statusColor = getCWVStatusColor(status as any)
   return (
@@ -62,6 +64,174 @@ function CWVCard({ title, value, status, threshold, unit }: { title: string; val
           {status?.replace('_', ' ')}
         </Badge>
       </CardContent>
+    </Card>
+  )
+}
+
+function impactColor(impact: string) {
+  if (impact === 'high') return 'bg-red-100 text-red-800 dark:bg-red-900 dark:text-red-200'
+  if (impact === 'medium') return 'bg-yellow-100 text-yellow-800 dark:bg-yellow-900 dark:text-yellow-200'
+  return 'bg-blue-100 text-blue-800 dark:bg-blue-900 dark:text-blue-200'
+}
+
+function effortColor(effort: string) {
+  if (effort === 'low') return 'bg-green-100 text-green-800 dark:bg-green-900 dark:text-green-200'
+  if (effort === 'medium') return 'bg-yellow-100 text-yellow-800 dark:bg-yellow-900 dark:text-yellow-200'
+  return 'bg-orange-100 text-orange-800 dark:bg-orange-900 dark:text-orange-200'
+}
+
+function AiRecommendationsSection({ reportId }: { reportId: string }) {
+  const queryClient = useQueryClient()
+  const [expanded, setExpanded] = useState(true)
+
+  const { data: existing, isLoading: loadingExisting } = useQuery({
+    queryKey: ['recommendations', reportId],
+    queryFn: () => recommendationsApi.get(reportId),
+    retry: false,
+  })
+
+  const generateMutation = useMutation({
+    mutationFn: () => recommendationsApi.generate(reportId),
+    onSuccess: (data) => {
+      queryClient.setQueryData(['recommendations', reportId], data)
+      toast.success('AI recommendations generated!')
+    },
+    onError: (error) => {
+      toast.error('Failed: ' + (error instanceof Error ? error.message : 'Unknown error'))
+    },
+  })
+
+  const rec = existing?.recommendations
+
+  return (
+    <Card>
+      <CardHeader>
+        <div className='flex items-center justify-between'>
+          <CardTitle className='flex items-center gap-2'>
+            <Bot className='h-5 w-5 text-primary' />
+            AI Recommendations
+          </CardTitle>
+          <div className='flex items-center gap-2'>
+            {rec && (
+              <Button variant='ghost' size='sm' onClick={() => setExpanded((v) => !v)}>
+                {expanded ? <ChevronUp className='h-4 w-4' /> : <ChevronDown className='h-4 w-4' />}
+              </Button>
+            )}
+            {!existing && !loadingExisting && (
+              <Button
+                size='sm'
+                onClick={() => generateMutation.mutate()}
+                disabled={generateMutation.isPending}
+              >
+                {generateMutation.isPending ? (
+                  <><Loader2 className='mr-2 h-4 w-4 animate-spin' />Analyzing...</>
+                ) : (
+                  <><Zap className='mr-2 h-4 w-4' />Generate with AI</>
+                )}
+              </Button>
+            )}
+          </div>
+        </div>
+        <CardDescription>
+          {rec ? `Generated ${new Date(existing!.generated_at).toLocaleString()}` : 'Get actionable SEO recommendations powered by AI'}
+        </CardDescription>
+      </CardHeader>
+
+      {loadingExisting && (
+        <CardContent>
+          <div className='flex items-center gap-2 text-muted-foreground'>
+            <Loader2 className='h-4 w-4 animate-spin' />
+            <span className='text-sm'>Loading recommendations...</span>
+          </div>
+        </CardContent>
+      )}
+
+      {!loadingExisting && !existing && !generateMutation.isPending && (
+        <CardContent>
+          <div className='rounded-lg border border-dashed p-6 text-center'>
+            <Bot className='mx-auto mb-3 h-8 w-8 text-muted-foreground' />
+            <p className='text-sm text-muted-foreground'>No AI recommendations yet. Configure OpenRouter or Claude in Settings, then click Generate.</p>
+          </div>
+        </CardContent>
+      )}
+
+      {rec && expanded && (
+        <CardContent className='space-y-6'>
+          {rec.overall_assessment && (
+            <div className='rounded-lg bg-muted p-4'>
+              <p className='text-sm font-medium mb-1'>Overall Assessment</p>
+              <p className='text-sm text-muted-foreground'>{rec.overall_assessment}</p>
+            </div>
+          )}
+
+          {rec.priority_recommendations && rec.priority_recommendations.length > 0 && (
+            <div>
+              <h4 className='mb-3 font-medium flex items-center gap-2'>
+                <AlertTriangle className='h-4 w-4 text-red-500' />
+                Priority Actions
+              </h4>
+              <div className='space-y-3'>
+                {rec.priority_recommendations.map((item, i) => (
+                  <div key={i} className='rounded-lg border p-4'>
+                    <div className='flex items-start justify-between gap-2 mb-2'>
+                      <p className='font-medium text-sm'>{item.title}</p>
+                      <div className='flex gap-1 shrink-0'>
+                        <Badge className={impactColor(item.impact)}>Impact: {item.impact}</Badge>
+                        <Badge className={effortColor(item.effort)}>Effort: {item.effort}</Badge>
+                      </div>
+                    </div>
+                    <p className='text-sm text-muted-foreground'>{item.description}</p>
+                  </div>
+                ))}
+              </div>
+            </div>
+          )}
+
+          <div className='grid gap-6 sm:grid-cols-3'>
+            {rec.content_recommendations && rec.content_recommendations.length > 0 && (
+              <div>
+                <h4 className='mb-3 font-medium text-sm'>Content</h4>
+                <div className='space-y-2'>
+                  {rec.content_recommendations.map((item, i) => (
+                    <div key={i} className='rounded-md border p-3'>
+                      <p className='text-sm font-medium'>{item.title}</p>
+                      <p className='text-xs text-muted-foreground mt-1'>{item.description}</p>
+                    </div>
+                  ))}
+                </div>
+              </div>
+            )}
+
+            {rec.technical_recommendations && rec.technical_recommendations.length > 0 && (
+              <div>
+                <h4 className='mb-3 font-medium text-sm'>Technical</h4>
+                <div className='space-y-2'>
+                  {rec.technical_recommendations.map((item, i) => (
+                    <div key={i} className='rounded-md border p-3'>
+                      <p className='text-sm font-medium'>{item.title}</p>
+                      <p className='text-xs text-muted-foreground mt-1'>{item.description}</p>
+                    </div>
+                  ))}
+                </div>
+              </div>
+            )}
+
+            {rec.performance_recommendations && rec.performance_recommendations.length > 0 && (
+              <div>
+                <h4 className='mb-3 font-medium text-sm'>Performance</h4>
+                <div className='space-y-2'>
+                  {rec.performance_recommendations.map((item, i) => (
+                    <div key={i} className='rounded-md border p-3'>
+                      <p className='text-sm font-medium'>{item.title}</p>
+                      <p className='text-xs text-muted-foreground mt-1'>{item.description}</p>
+                    </div>
+                  ))}
+                </div>
+              </div>
+            )}
+          </div>
+        </CardContent>
+      )}
     </Card>
   )
 }
@@ -116,6 +286,9 @@ export function SeoReport({ report }: SeoReportProps) {
           subtitle={parseFloat(pageSizeMB) > 3 ? 'Large' : 'Optimal'}
         />
       </div>
+
+      {/* AI Recommendations */}
+      <AiRecommendationsSection reportId={report.id} />
 
       {/* Core Web Vitals */}
       <Card>

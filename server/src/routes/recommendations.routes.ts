@@ -1,7 +1,8 @@
 import { Router, type Request, type Response } from 'express';
 import { authMiddleware } from '../middleware/auth.middleware.js';
-import { getPageResultById, supabase } from '../db/supabase.js';
+import { getPageResultById, getUserApiKey, supabase } from '../db/supabase.js';
 import { generateSEORecommendations } from '../services/claude.service.js';
+import { generateSEORecommendationsOpenRouter } from '../services/openrouter.service.js';
 
 const router = Router();
 
@@ -29,7 +30,11 @@ router.post('/:pageResultId', authMiddleware, async (req: Request, res: Response
       return;
     }
 
-    const recommendations = await generateSEORecommendations(userId, pageResult);
+    const recommendations = await (async () => {
+      const openrouterKey = await getUserApiKey(userId, 'openrouter_api_key');
+      if (openrouterKey) return generateSEORecommendationsOpenRouter(userId, pageResult);
+      return generateSEORecommendations(userId, pageResult);
+    })();
 
     const { data: newRec, error } = await supabase
       .from('ai_recommendations')

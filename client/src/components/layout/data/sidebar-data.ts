@@ -4,6 +4,11 @@ import {
   Palette,
   Key,
   Triangle,
+  History,
+  FileText,
+  Settings,
+  User,
+  Monitor,
 } from 'lucide-react'
 import { type SidebarData } from '../types'
 
@@ -29,6 +34,16 @@ export const sidebarData: SidebarData = {
           url: '/audits',
           icon: LayoutDashboard,
         },
+        {
+          title: 'Audit History',
+          url: '/history',
+          icon: History,
+        },
+        {
+          title: 'Reports',
+          url: '/reports',
+          icon: FileText,
+        },
       ],
     },
     {
@@ -43,6 +58,21 @@ export const sidebarData: SidebarData = {
           title: 'Appearance',
           url: '/settings/appearance',
           icon: Palette,
+        },
+        {
+          title: 'Account',
+          url: '/settings/account',
+          icon: User,
+        },
+        {
+          title: 'Display',
+          url: '/settings/display',
+          icon: Monitor,
+        },
+        {
+          title: 'All Settings',
+          url: '/settings',
+          icon: Settings,
         },
       ],
     },

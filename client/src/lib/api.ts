@@ -110,19 +110,53 @@ export const reportApi = {
   },
 }
 
+// Recommendations API
+export interface AiRecommendation {
+  id: string
+  page_result_id: string
+  user_id: string
+  recommendations: {
+    overall_assessment?: string
+    priority_recommendations?: Array<{ title: string; description: string; impact: string; effort: string }>
+    content_recommendations?: Array<{ title: string; description: string }>
+    technical_recommendations?: Array<{ title: string; description: string }>
+    performance_recommendations?: Array<{ title: string; description: string }>
+    summary?: string
+  }
+  generated_at: string
+}
+
+export const recommendationsApi = {
+  generate: async (pageResultId: string): Promise<AiRecommendation> => {
+    const response = await api.post<AiRecommendation>(`/recommendations/${pageResultId}`)
+    return response.data
+  },
+  get: async (pageResultId: string): Promise<AiRecommendation> => {
+    const response = await api.get<AiRecommendation>(`/recommendations/${pageResultId}`)
+    return response.data
+  },
+}
+
 // Settings API
 export interface ApiSettings {
   firecrawl_api_key: string
   dataforseo_username: string
   dataforseo_password: string
+  claude_api_key: string
+  openrouter_api_key: string
   firecrawl_api_key_configured: string
   dataforseo_username_configured: string
   dataforseo_password_configured: string
+  claude_api_key_configured: string
+  openrouter_api_key_configured: string
 }
 
 export interface ApiSettingsStatus {
   firecrawl_configured: boolean
   dataforseo_configured: boolean
+  claude_configured: boolean
+  openrouter_configured: boolean
+  ai_configured: boolean
   all_configured: boolean
 }
 
@@ -144,6 +178,8 @@ export const settingsApi = {
     firecrawl_api_key: string
     dataforseo_username: string
     dataforseo_password: string
+    claude_api_key: string
+    openrouter_api_key: string
   }>): Promise<{ success: boolean; message: string }> => {
     const response = await api.put<{ success: boolean; message: string }>('/settings', settings)
     return response.data
